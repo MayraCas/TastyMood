@@ -118,7 +118,7 @@ fun Recetas(
         Column(
             verticalArrangement = Arrangement.spacedBy(10.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(top = 30.dp)
+            modifier = Modifier.padding(top = 10.dp)
         ) {
             Row(
                 modifier = Modifier
@@ -129,7 +129,7 @@ fun Recetas(
             ) {
                 FloatingActionButton(
                     onClick = {
-                        navController.popBackStack()
+                        navController.navigate("Home")
                     },
                     contentColor = Color(0xFFAC5969),
                     containerColor = Color(0xFFFDC7BD),

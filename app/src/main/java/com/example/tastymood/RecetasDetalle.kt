@@ -32,12 +32,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import coil.compose.AsyncImagePainter
+import coil.compose.rememberAsyncImagePainter
 import com.example.tastymood.database.AppDatabase
 import com.example.tastymood.database.Favorito
 import kotlinx.coroutines.launch
@@ -48,7 +51,6 @@ fun RecetasDetalle(
     idReceta: Int
 ) {
     val recetaViewModel: RecetaViewModel = viewModel()
-    val filtros = recetaViewModel.filtros
     val database = recetaViewModel.database
 
     var receta by remember { mutableStateOf<Receta?>(null) }
@@ -102,20 +104,42 @@ fun RecetasDetalle(
                         modifier = Modifier
                             .fillMaxSize()
                     ) {
+
+                        // Imagen de la receta
+                        val painter = rememberAsyncImagePainter(
+                            model = receta!!.imagen,
+                            error = painterResource(R.drawable.sincargar)
+                        )
+
+                        val state = painter.state
+
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .padding(start = 15.dp, end = 15.dp)
                                 .height(300.dp)
+                                .clip(RoundedCornerShape(40.dp))
+                                .background(
+                                    if (state is AsyncImagePainter.State.Loading)
+                                        Color(0xFFFDC7BD)
+                                    else
+                                        Color.Transparent
+                                )
                         ) {
-                             AsyncImage(
-                                 model = receta!!.imagen,
-                                 contentDescription = receta!!.nombreReceta,
-                                 modifier = Modifier.fillMaxSize()
-                                     .padding(10.dp)
-                                     .clip(RoundedCornerShape(30.dp)),
-                                 contentScale = ContentScale.Crop,
-                                 alignment = Alignment.Center
-                             )
+                            Image(
+                                painter = painter,
+                                contentDescription = receta!!.nombreReceta,
+                                modifier = Modifier.matchParentSize(),
+                                contentScale = ContentScale.Crop
+                            )
+
+                            if (state is AsyncImagePainter.State.Loading) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.align(Alignment.Center),
+                                    strokeWidth = 2.dp,
+                                    color = Color.White
+                                )
+                            }
 
                             // Botón de regreso
                             FloatingActionButton(

@@ -61,6 +61,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
+import java.nio.file.WatchEvent
 
 
 @Composable
@@ -75,13 +76,12 @@ fun RecetasFavoritas(
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    // Cargar recetas
     LaunchedEffect(Unit) {
         isLoading = true
         errorMessage = null
         try {
             recetas = database.favoritoDao().getRecetasFavoritas()
-            Log.d("Recetas Favoritas", "Recetas cargadas: $recetas") // Verifica si está obteniendo datos
+            Log.d("Recetas Favoritas", "Recetas cargadas: $recetas")
         } catch (e: Exception) {
             Log.e("Recetas Favoritas", "Error al cargar las recetas favoritas", e)
             errorMessage = "Error al cargar las recetas favoritas"
@@ -97,9 +97,9 @@ fun RecetasFavoritas(
         contentAlignment = Alignment.TopCenter
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(15.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(top = 30.dp)
+            modifier = Modifier.padding(top = 10.dp)
         ) {
             Row(
                 modifier = Modifier
@@ -110,7 +110,7 @@ fun RecetasFavoritas(
             ) {
                 FloatingActionButton(
                     onClick = {
-                        navController.popBackStack()
+                        navController.navigate("Home")
                     },
                     contentColor = Color(0xFFAC5969),
                     containerColor = Color(0xFFFDC7BD),
@@ -209,7 +209,6 @@ fun RecetasFavoritas(
                             )
                         }
 
-                        // Espacio adicional al final
                         item {
                             Spacer(modifier = Modifier.height(20.dp))
                         }
@@ -242,7 +241,6 @@ fun RecetaFavCard(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Imagen de la receta
             val painter = rememberAsyncImagePainter(
                 model = receta.imagen,
                 error = painterResource(R.drawable.sincargar)
@@ -279,7 +277,6 @@ fun RecetaFavCard(
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // Contenido de texto
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = receta.nombreReceta,
@@ -308,17 +305,15 @@ fun RecetaFavCard(
 
             Spacer(modifier = Modifier.width(8.dp))
 
-            // Botones de acción
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Botón de favoritos
                 IconButton(
                     onClick = {
                         scope.launch {
                             database.favoritoDao().deleteFavorito(receta.idReceta)
-                            onRemoveFavorito(receta.idReceta) // 👈 Llamar la función de actualización
+                            onRemoveFavorito(receta.idReceta)
                         }
                     },
                     modifier = Modifier.size(40.dp).background(Color(0xFFAD5D56), CircleShape)
@@ -331,10 +326,8 @@ fun RecetaFavCard(
                     )
                 }
 
-                //Boton de detalles
                 Spacer(modifier = Modifier.width(8.dp))
 
-                // Botón de detalles (tres puntos)
                 IconButton(
                     onClick = {
                         navController.navigate("RecetasDetalle/${receta.idReceta}")

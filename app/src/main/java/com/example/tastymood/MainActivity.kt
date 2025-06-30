@@ -62,8 +62,14 @@ class MainActivity : ComponentActivity() {
                 }
                 LaunchedEffect(key1 = true) {
                     delay(3000L)
-                    startActivity(Intent(this@MainActivity, PantallaRegistro::class.java))
-                    finish()
+                    try {
+                        val intent = Intent(this@MainActivity, PantallaRegistro::class.java)
+                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        startActivity(intent)
+                        finish()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
             }
         }

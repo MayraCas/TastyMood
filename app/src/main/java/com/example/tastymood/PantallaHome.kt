@@ -99,8 +99,7 @@ fun PantallaHome (
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(15.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(5.dp))
 
@@ -276,7 +275,7 @@ fun PantallaHome (
                                     color = Color(0xFFC07771)
                                 )
                             },
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth().height(55.dp),
                             shape = RoundedCornerShape(12.dp),
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = Color(0xFFAC5969),
@@ -307,7 +306,7 @@ fun PantallaHome (
                                     color = Color(0xFFC07771)
                                 )
                             },
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth().height(55.dp),
                             shape = RoundedCornerShape(12.dp),
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = Color(0xFFAC5969),
@@ -326,6 +325,8 @@ fun PantallaHome (
                     ) {
                         FloatingActionButton(
                             onClick = {
+                                preferredIngredients = preferredIngredients.trim()
+                                excludedIngredients = excludedIngredients.trim()
                                 navController.navigate("Recetas/$emogisSelect/$dietaSelect/$preferredIngredients/$excludedIngredients")
                             },
                             containerColor = Color(0xFFAD5D56),
