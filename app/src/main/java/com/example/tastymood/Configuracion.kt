@@ -67,10 +67,13 @@ fun ConfigScreen (
     val mContext = LocalContext.current
     val scope = rememberCoroutineScope()
 
+    var isDateSelected by remember { mutableStateOf(false) }
+
     LaunchedEffect(userDetails.name) {
         nombre = userDetails.name
         generoSeleccionado = userDetails.gender
         selectedDate = userDetails.date
+        isDateSelected = userDetails.date.isNotEmpty() // Marca como seleccionada si ya hay una fecha
     }
 
     Box(
@@ -164,8 +167,6 @@ fun ConfigScreen (
                     val year = calendar.get(Calendar.YEAR)
                     val month = calendar.get(Calendar.MONTH)
                     val day = calendar.get(Calendar.DAY_OF_MONTH)
-
-                    var isDateSelected by remember { mutableStateOf(false) } // Variable de validación
 
                     val datePickerDialog = DatePickerDialog(
                         mContext,
@@ -284,7 +285,7 @@ fun ConfigScreen (
                                         "El nombre está vacío",
                                         Toast.LENGTH_SHORT
                                     ).show()
-                                } else if (!isDateSelected) {
+                                } else if (selectedDate.isEmpty()) {
                                     Toast.makeText(
                                         mContext,
                                         "No ha seleccionado su fecha de nacimiento",
