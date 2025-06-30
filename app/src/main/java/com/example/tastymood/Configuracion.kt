@@ -117,13 +117,13 @@ fun ConfigScreen (
                     text = "Configuración",
                     color = Color(0xFFAC5969),
                     textAlign = TextAlign.Center,
-                    fontSize = 26.sp,
+                    fontSize = 20.sp,
                     modifier = Modifier.padding(10.dp)
                 )
             }
             Card(
                 modifier = Modifier
-                    .height(520.dp)
+                    .height(500.dp)
                     .padding(top = 5.dp, end = 15.dp, start = 15.dp, bottom = 5.dp)
                     .clip(RoundedCornerShape(50.dp)),
                 colors = CardDefaults.cardColors(containerColor = Color(0xFFFFC6BB)),
@@ -137,7 +137,7 @@ fun ConfigScreen (
                     // Título
                     Text(
                         text = "Rellena los campos",
-                        fontSize = 30.sp,
+                        fontSize = 18.sp,
                         color = Color(0xFFAD5D56),
                         modifier = Modifier.padding(top = 20.dp, bottom = 20.dp)
                     )
@@ -150,6 +150,7 @@ fun ConfigScreen (
                         placeholder = { Text(text = "Nombre", color = Color(0xFFD38D85)) },
                         modifier = Modifier
                             .fillMaxWidth()
+                            .height(78.dp)
                             .padding(bottom = 15.dp),
                         shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
@@ -210,7 +211,7 @@ fun ConfigScreen (
                     // Sección Género
                     Text(
                         text = "Género",
-                        fontSize = 16.sp,
+                        fontSize = 15.sp,
                         fontWeight = FontWeight.Medium,
                         color = Color(0xFFB76D7B),
                         modifier = Modifier.padding(bottom = 5.dp)
@@ -279,7 +280,7 @@ fun ConfigScreen (
                         FloatingActionButton(
                             onClick = {
                                 // Acción al hacer clic
-                                if (nombre.isEmpty()) {
+                                if (nombre.trim().isEmpty()) {
                                     Toast.makeText(
                                         mContext,
                                         "El nombre está vacío",
@@ -295,7 +296,7 @@ fun ConfigScreen (
                                     scope.launch {
                                         dataStoreManager.saveToDateStore(
                                             UserDetails(
-                                                name = nombre,
+                                                name = nombre.trim(),
                                                 date = selectedDate,
                                                 gender = generoSeleccionado
                                             )

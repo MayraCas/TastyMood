@@ -146,6 +146,7 @@ fun RegisterPage(
                         placeholder = { Text(text = "Nombre", color = Color(0xFFD38D85)) },
                         modifier = Modifier
                             .fillMaxWidth()
+                            .height(78.dp)
                             .padding(bottom = 15.dp),
                         shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
@@ -277,7 +278,7 @@ fun RegisterPage(
                         FloatingActionButton(
                             onClick = {
                                 // Acción al hacer clic
-                                if (nombre.isEmpty()) {
+                                if (nombre.trim().isEmpty()) {
                                     Toast.makeText(mContext, "El nombre está vacío", Toast.LENGTH_SHORT).show()
                                 } else if (!isDateSelected) {
                                     Toast.makeText(mContext, "No ha seleccionado su fecha de nacimiento", Toast.LENGTH_SHORT).show()
@@ -285,7 +286,7 @@ fun RegisterPage(
                                     scope.launch {
                                         dataStoreManager.saveToDateStore(
                                             UserDetails(
-                                                name = nombre,
+                                                name = nombre.trim(),
                                                 date = selectedDate,
                                                 gender = generoSeleccionado
                                             )
@@ -325,7 +326,7 @@ fun IlustracionPrincipal() {
                 .fillMaxWidth()
                 .height(600.dp)
                 .padding(top = 20.dp, bottom = 0.dp)
-                .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp)),
+                .clip(RoundedCornerShape(32.dp)),
             contentScale = ContentScale.FillWidth
         )
     }

@@ -58,6 +58,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -97,7 +98,7 @@ fun PantallaHome (
         contentAlignment = Alignment.TopCenter,
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(20.dp),
+            verticalArrangement = Arrangement.spacedBy(15.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
 
         ) {
@@ -106,7 +107,7 @@ fun PantallaHome (
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(10.dp),
+                    .padding(6.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -129,11 +130,12 @@ fun PantallaHome (
                 }
 
                 Text(
-                    text = "¿Cómo te sientes hoy, ${userDetails?.name ?: ""}?",
+                    text = "¿Cómo te sientes hoy${userDetails?.name?.takeIf { it.isNotEmpty() }?.let { ", $it" } ?: ""}?",
                     color = Color(0xFFAC5969),
                     textAlign = TextAlign.Center,
-                    fontSize = 20.sp,
-                    modifier = Modifier.weight(1f)
+                    fontSize = 18.sp,
+                    maxLines = 2,
+                    modifier = Modifier.weight(1f).padding(horizontal = 8.dp)
                 )
 
                 FloatingActionButton(
@@ -155,6 +157,13 @@ fun PantallaHome (
                 }
             }
 
+            Text(
+                text = "¡Tus emociones son importantes para saber qué podrías comer hoy!",
+                color = Color(0xFFAC5969),
+                textAlign = TextAlign.Center,
+                fontSize = 14.sp,
+                modifier = Modifier.padding(start = 10.dp, end = 10.dp)
+            )
 
             botonesEmogis.chunked(3).forEach { fila ->
                 Row(
@@ -167,7 +176,7 @@ fun PantallaHome (
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .padding(start = 3.dp, end = 3.dp)
+                                    .padding(start = 2.dp, end = 2.dp)
                                     .height(70.dp)
                                     .width(75.dp)
                                     .clip(CircleShape)
@@ -184,9 +193,11 @@ fun PantallaHome (
                                 )
                             }
                             Spacer(modifier = Modifier.height(10.dp))
-                            Text(text = boton.descripcion,
+                            Text(
+                                text = boton.descripcion,
                                 color = if (emogisSelect == boton.label) Color(0xFFAC5969) else Color(0xFFB76D7B),
-                                fontSize = 12.sp)
+                                fontSize = 12.sp
+                            )
                         }
                     }
                 }
@@ -194,7 +205,7 @@ fun PantallaHome (
 
             Card(
                 modifier = Modifier
-                    .height(520.dp)
+                    .height(550.dp)
                     .padding(top = 5.dp, end = 15.dp, start = 15.dp, bottom = 5.dp)
                     .clip(RoundedCornerShape(50.dp)),
                 colors = CardDefaults.cardColors(containerColor = Color(0xFFFFC6BB)),
@@ -337,4 +348,11 @@ fun PantallaHome (
     }
 
 }
-
+@Composable
+@Preview(showBackground = true, backgroundColor = 0xFFFFEBEB)
+fun PreviewPantallaHome() {
+    PantallaHome(
+        navController = NavHostController(LocalContext.current),
+        dataStoreManager = DataStoreManager(LocalContext.current)
+    )
+}

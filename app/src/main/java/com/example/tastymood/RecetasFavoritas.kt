@@ -131,7 +131,7 @@ fun RecetasFavoritas(
                     text = "Favoritos",
                     color = Color(0xFFAC5969),
                     textAlign = TextAlign.Center,
-                    fontSize = 26.sp,
+                    fontSize = 20.sp,
                     modifier = Modifier.padding(10.dp)
                 )
             }
