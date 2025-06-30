@@ -25,6 +25,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.Button
@@ -45,11 +47,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
@@ -57,6 +61,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.tastymood.database.AppDatabase
 import com.example.tastymood.utils.DataStoreManager
 
 data class BotonData(val label: String, val imageRes: Int, val descripcion: String)
@@ -68,19 +73,15 @@ fun PantallaHome (
 ) {
 
     val userDetails by dataStoreManager.getFromDataStore().collectAsState(initial = null)
-    var selectedDiet by remember { mutableStateOf("Ninguna") }
-    var preferredIngredients by remember { mutableStateOf("") }
-    var excludedIngredients by remember { mutableStateOf("") }
+    var preferredIngredients by rememberSaveable { mutableStateOf("") }
+    var excludedIngredients by rememberSaveable { mutableStateOf("") }
 
     val botonesEmogis = listOf(
         BotonData("Feliz", R.drawable.feli, "Feliz"),
-        BotonData("Relajado", R.drawable.relajao, "Relajado"),
         BotonData("Triste", R.drawable.tite, "Triste"),
-        BotonData("Enojado", R.drawable.enojao, "Enojado"),
-        BotonData("Estresado", R.drawable.estresao, "Estresado"),
-        BotonData("Aburrido", R.drawable.aburrio, "Aburrido")
+        BotonData("Enojado", R.drawable.enojao, "Enojado")
     )
-    var emogisSelect by remember {mutableStateOf(botonesEmogis.first().label)}
+    var emogisSelect by rememberSaveable {mutableStateOf(botonesEmogis.first().label)}
 
     val opcionesDieta = listOf(
         "Ninguna",
@@ -88,52 +89,77 @@ fun PantallaHome (
         "En animales",
         "Sin azúcares"
     )
-    var dietaSelect by remember {mutableStateOf(opcionesDieta.first())}
+    var dietaSelect by rememberSaveable {mutableStateOf(opcionesDieta.first())}
 
     Box(
         modifier = Modifier.fillMaxSize()
             .background(Color(0xFFFFEBEB)),
-        contentAlignment = Alignment.Center,
+        contentAlignment = Alignment.TopCenter,
     ) {
         Column(
             verticalArrangement = Arrangement.spacedBy(20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
 
         ) {
+            Spacer(modifier = Modifier.height(5.dp))
+
             Row(
-                modifier = Modifier.padding(top = 25.dp, end = 5.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(15.dp)
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                FloatingActionButton (
-                    onClick = { navController.navigate("Recetas") },
+                FloatingActionButton(
+                    onClick = {
+                        navController.navigate("RecetasFavoritas")
+                    },
                     contentColor = Color(0xFFAC5969),
                     containerColor = Color(0xFFFDC7BD),
-                    modifier = Modifier.size(60.dp)
-                        .padding(10.dp),
+                    modifier = Modifier.size(70.dp).padding(10.dp),
                     shape = CircleShape,
                     elevation = FloatingActionButtonDefaults.elevation(0.dp)
                 ) {
                     Icon(
-                        painterResource(id = R.drawable.baseline_star_outline_24),
+                        imageVector = Icons.Default.Favorite,
                         contentDescription = "Favoritos",
+                        tint = Color(0xFFAC5969),
                         modifier = Modifier.size(30.dp)
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
                 }
 
-                Text(text = "¿Cómo te sientes hoy, ${userDetails?.name ?: ""}?",
+                Text(
+                    text = "¿Cómo te sientes hoy, ${userDetails?.name ?: ""}?",
                     color = Color(0xFFAC5969),
                     textAlign = TextAlign.Center,
-                    fontSize = 26.sp,
-                    modifier = Modifier.padding(top = 20.dp, start = 0.dp, end = 20.dp)
+                    fontSize = 20.sp,
+                    modifier = Modifier.weight(1f)
                 )
+
+                FloatingActionButton(
+                    onClick = {
+                        navController.navigate("Configuracion")
+                    },
+                    contentColor = Color(0xFFAC5969),
+                    containerColor = Color(0xFFFDC7BD),
+                    modifier = Modifier.size(70.dp).padding(10.dp),
+                    shape = CircleShape,
+                    elevation = FloatingActionButtonDefaults.elevation(0.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Settings,
+                        contentDescription = "Configuración",
+                        tint = Color(0xFFAC5969),
+                        modifier = Modifier.size(30.dp)
+                    )
+                }
             }
+
 
             botonesEmogis.chunked(3).forEach { fila ->
                 Row(
                     modifier = Modifier.wrapContentWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(35.dp)
+                    horizontalArrangement = Arrangement.spacedBy(40.dp)
                 ) {
                     fila.forEach { boton ->
                         Column(
@@ -141,26 +167,26 @@ fun PantallaHome (
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .padding(start = 10.dp, end = 10.dp)
-                                    .height(60.dp)
-                                    .width(65.dp)
+                                    .padding(start = 3.dp, end = 3.dp)
+                                    .height(70.dp)
+                                    .width(75.dp)
                                     .clip(CircleShape)
                                     .background(Color(0xFFFFEBEB))
-                                    .border( if (emogisSelect == boton.label) 3.dp else 1.dp, Color(0xFFAC5969), CircleShape)
+                                    .border( if (emogisSelect == boton.label) 3.dp else 2.dp, Color(0xFFAC5969), CircleShape)
                                     .clickable { emogisSelect = boton.label },
                                 contentAlignment = Alignment.Center
                             ) {
                                 Image(
                                     painter = painterResource(id = boton.imageRes),
                                     contentDescription = boton.label,
-                                    modifier = Modifier.size(65.dp)
+                                    modifier = Modifier.size(75.dp)
                                         .clip(RoundedCornerShape(60.dp))
                                 )
                             }
                             Spacer(modifier = Modifier.height(10.dp))
                             Text(text = boton.descripcion,
                                 color = if (emogisSelect == boton.label) Color(0xFFAC5969) else Color(0xFFB76D7B),
-                                fontSize = 16.sp)
+                                fontSize = 12.sp)
                         }
                     }
                 }
@@ -169,25 +195,22 @@ fun PantallaHome (
             Card(
                 modifier = Modifier
                     .height(520.dp)
-                    .padding(top = 10.dp, end = 15.dp, start = 15.dp, bottom = 10.dp)
-                    .clip(RoundedCornerShape(
-                        topStart = 50.dp, topEnd = 50.dp,
-                        bottomStart = 50.dp, bottomEnd = 50.dp)
-                    ),
+                    .padding(top = 5.dp, end = 15.dp, start = 15.dp, bottom = 5.dp)
+                    .clip(RoundedCornerShape(50.dp)),
                 colors = CardDefaults.cardColors(containerColor = Color(0xFFFFC6BB)),
                 elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(24.dp)
+                        .padding(30.dp)
                         .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                    verticalArrangement = Arrangement.spacedBy(15.dp)
                 ) {
                     // Título de la sección de dieta
                     Text(
                         text = "¿Posees alguna dieta o estilo de vida?",
-                        fontSize = 18.sp,
+                        fontSize = 15.sp,
                         color = Color(0xFF8B5A5A),
                     )
 
@@ -199,7 +222,7 @@ fun PantallaHome (
                             Row(
                                 modifier = Modifier
                                     .wrapContentWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                horizontalArrangement = Arrangement.spacedBy(2.dp)
                             ) {
                                 fila.forEach { label ->
                                     Row(
@@ -215,7 +238,7 @@ fun PantallaHome (
                                             onClick = { dietaSelect = label }
                                         )
                                         Text(text = label,
-                                            fontSize = 16.sp,
+                                            fontSize = 14.sp,
                                             color = if (dietaSelect == label) Color(0xFFAD5D56) else Color(0xFFC07771)
                                         )
                                     }
@@ -224,13 +247,12 @@ fun PantallaHome (
                         }
                     }
 
-                    // Campo de ingredientes preferidos
                     Column(
-                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                        verticalArrangement = Arrangement.spacedBy(15.dp)
                     ) {
                         Text(
                             text = "¿Algún ingrediente que prefieras hoy?",
-                            fontSize = 18.sp,
+                            fontSize = 15.sp,
                             color = Color(0xFF8B5A5A)
                         )
 
@@ -239,7 +261,7 @@ fun PantallaHome (
                             onValueChange = { preferredIngredients = it },
                             placeholder = {
                                 Text(
-                                    text = "Ingrediente(s)",
+                                    text = "Ingrediente",
                                     color = Color(0xFFC07771)
                                 )
                             },
@@ -247,18 +269,21 @@ fun PantallaHome (
                             shape = RoundedCornerShape(12.dp),
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = Color(0xFFAC5969),
-                                unfocusedBorderColor = Color(0xFFC07771)
+                                unfocusedBorderColor = Color(0xFFC07771),
+                                cursorColor = Color(0xFFAC5969),
+                                focusedTextColor = Color(0xFFAC5969),
+                                unfocusedTextColor = Color(0xFFC07771)
                             )
                         )
                     }
 
                     // Campo de ingredientes a excluir
                     Column(
-                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                        verticalArrangement = Arrangement.spacedBy(15.dp)
                     ) {
                         Text(
                             text = "¿Algún ingrediente que desees excluir hoy?",
-                            fontSize = 18.sp,
+                            fontSize = 15.sp,
                             color = Color(0xFF8B5A5A)
                         )
 
@@ -267,7 +292,7 @@ fun PantallaHome (
                             onValueChange = { excludedIngredients = it },
                             placeholder = {
                                 Text(
-                                    text = "Ingrediente(s)",
+                                    text = "Ingrediente",
                                     color = Color(0xFFC07771)
                                 )
                             },
@@ -275,12 +300,13 @@ fun PantallaHome (
                             shape = RoundedCornerShape(12.dp),
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = Color(0xFFAC5969),
-                                unfocusedBorderColor = Color(0xFFC07771)
+                                unfocusedBorderColor = Color(0xFFC07771),
+                                cursorColor = Color(0xFFAC5969),
+                                focusedTextColor = Color(0xFFAC5969),
+                                unfocusedTextColor = Color(0xFFC07771)
                             )
                         )
                     }
-
-                    Spacer(modifier = Modifier.height(5.dp))
 
                     // Botón de confirmación
                     Box(
@@ -290,9 +316,6 @@ fun PantallaHome (
                         FloatingActionButton(
                             onClick = {
                                 navController.navigate("Recetas/$emogisSelect/$dietaSelect/$preferredIngredients/$excludedIngredients")
-                                println("Dieta seleccionada: $selectedDiet")
-                                println("Ingredientes preferidos: $preferredIngredients")
-                                println("Ingredientes excluidos: $excludedIngredients")
                             },
                             containerColor = Color(0xFFAD5D56),
                             contentColor = Color.White,
@@ -303,7 +326,7 @@ fun PantallaHome (
                             Icon(
                                 imageVector = Icons.Default.Check,
                                 contentDescription = "Confirmar",
-                                modifier = Modifier.size(50.dp)
+                                modifier = Modifier.size(40.dp)
                             )
                         }
                     }

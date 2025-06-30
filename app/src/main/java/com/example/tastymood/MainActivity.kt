@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -41,16 +42,9 @@ class MainActivity : ComponentActivity() {
                     verticalArrangement = Arrangement.Center
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.tazas_ilustracion),
+                        painter = painterResource(id = R.drawable.logo),
                         contentDescription = "App Logo",
-                        modifier = Modifier
-                            .height(200.dp)
-                            .clip(RoundedCornerShape(
-                                topStart = 60.dp,
-                                topEnd = 60.dp,
-                                bottomStart = 60.dp,
-                                bottomEnd = 60.dp)
-                            ),
+                        modifier = Modifier.size(150.dp).clip(RoundedCornerShape(50.dp)),
                         contentScale = ContentScale.FillHeight
                     )
 

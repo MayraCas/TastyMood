@@ -61,21 +61,14 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.compose.AsyncImagePainter
 import coil.compose.rememberAsyncImagePainter
-import com.example.tastymood.database.FavoritoDao
-import com.example.tastymood.database.RecetaDao
 
 
 @Composable
-fun Recetas(
-    navController: NavHostController,
-    mood: String,
-    diet: String,
-    preferredIngredients: String,
-    excludedIngredients: String
+fun RecetasFavoritas(
+    navController: NavHostController
 ){
 
-    val recetaViewModel: RecetaViewModel = viewModel()
-    recetaViewModel.filtros = FiltrosReceta(mood, diet, preferredIngredients, excludedIngredients)
+    val recetaViewModel: RecetaViewModel = viewModel ()
     val database = recetaViewModel.database
 
     var recetas by remember { mutableStateOf<List<Receta>>(emptyList()) }
@@ -83,27 +76,15 @@ fun Recetas(
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     // Cargar recetas
-    LaunchedEffect (mood, diet, preferredIngredients, excludedIngredients) {
+    LaunchedEffect(Unit) {
         isLoading = true
         errorMessage = null
         try {
-            if (diet == "Ninguna") {
-                recetas = database.recetaDao().getAllRecetas(
-                    emocion = mood,
-                    preferredIngredients = preferredIngredients,
-                    excludedIngredientes = excludedIngredients
-                )
-            } else {
-                recetas = database.recetaDao().getPrefRecetas(
-                    emocion = mood,
-                    tipoDieta = diet,
-                    preferredIngredients = preferredIngredients,
-                    excludedIngredientes = excludedIngredients
-                )
-            }
+            recetas = database.favoritoDao().getRecetasFavoritas()
+            Log.d("Recetas Favoritas", "Recetas cargadas: $recetas") // Verifica si está obteniendo datos
         } catch (e: Exception) {
-            Log.e("Recetas", "Error al cargar recetas", e)
-            errorMessage = "Error al cargar las recetas"
+            Log.e("Recetas Favoritas", "Error al cargar las recetas favoritas", e)
+            errorMessage = "Error al cargar las recetas favoritas"
         } finally {
             isLoading = false
         }
@@ -125,7 +106,7 @@ fun Recetas(
                     .fillMaxWidth()
                     .padding(10.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.spacedBy(50.dp)
             ) {
                 FloatingActionButton(
                     onClick = {
@@ -147,31 +128,12 @@ fun Recetas(
                 }
 
                 Text(
-                    text = "Recetas",
+                    text = "Favoritos",
                     color = Color(0xFFAC5969),
                     textAlign = TextAlign.Center,
-                    fontSize = 20.sp,
+                    fontSize = 26.sp,
                     modifier = Modifier.padding(10.dp)
                 )
-
-                Box(
-                    modifier = Modifier
-                        .padding(15.dp)
-                        .height(60.dp)
-                        .width(65.dp)
-                        .clip(CircleShape)
-                        .background(Color(0xFFFFEBEB))
-                        .border(2.dp, Color(0xFFAC5969), CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Image(
-                        painter = imagenEmogi(mood),
-                        contentDescription = "Estado de ánimo",
-                        modifier = Modifier
-                            .size(65.dp)
-                            .clip(RoundedCornerShape(60.dp))
-                    )
-                }
             }
 
             when {
@@ -212,14 +174,14 @@ fun Recetas(
                                 modifier = Modifier.padding(bottom = 8.dp)
                             )
                             Text(
-                                text = "No se encontraron recetas",
+                                text = "No se encontraron recetas favoritas",
                                 color = Color(0xFFAC5969),
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
                                 textAlign = TextAlign.Center
                             )
                             Text(
-                                text = "Intenta con otros filtros",
+                                text = "Para poder ver sus recetas favoritas primero debe marcarlas como favoritas",
                                 color = Color(0xFFC07771),
                                 fontSize = 12.sp,
                                 textAlign = TextAlign.Center,
@@ -237,10 +199,13 @@ fun Recetas(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         items(recetas) { receta ->
-                            RecetaCard(
+                            RecetaFavCard(
                                 navController = navController,
                                 database = database,
-                                receta = receta
+                                receta = receta,
+                                onRemoveFavorito = { idReceta ->
+                                    recetas = recetas.filter { it.idReceta != idReceta }
+                                }
                             )
                         }
 
@@ -256,51 +221,27 @@ fun Recetas(
 }
 
 @Composable
-fun RecetaCard(
+fun RecetaFavCard(
     navController: NavHostController,
     database: AppDatabase,
     receta: Receta,
+    onRemoveFavorito: (Int) -> Unit
 ) {
     val scope = rememberCoroutineScope()
-
-    var fav by remember { mutableStateOf<List<Favorito>>(emptyList()) }
-    var isFavorite by remember { mutableStateOf(false) }
-    var isLoading by remember { mutableStateOf(true) }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
-
-    // Verificar si está la receta en favoritos
-    LaunchedEffect(receta) {
-        isLoading = true
-        errorMessage = null
-        try {
-            fav = database.recetaDao().isFavReceta(idReceta = receta.idReceta)
-            isFavorite = fav.isNotEmpty()
-        } catch (e: Exception) {
-            Log.e("Favoritos", "Error al verificar recetas favoritas", e)
-            errorMessage = "Error al verificar favoritas"
-        } finally {
-            isLoading = false
-        }
-    }
 
     Card(
         modifier = Modifier
             .height(130.dp)
             .fillMaxWidth()
             .padding(vertical = 4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFFDC7BD)
-        ),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFFDC7BD)),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         shape = RoundedCornerShape(24.dp)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-
             // Imagen de la receta
             val painter = rememberAsyncImagePainter(
                 model = receta.imagen,
@@ -339,29 +280,23 @@ fun RecetaCard(
             Spacer(modifier = Modifier.width(16.dp))
 
             // Contenido de texto
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                // Título de la receta
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = receta.nombreReceta,
-                    color = Color(0xFFAC5969), // Color rosa más oscuro
+                    color = Color(0xFFAC5969),
                     fontSize = 15.sp,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
-
                 Spacer(modifier = Modifier.height(8.dp))
 
                 val ingredientesList = receta.ingredientes.split(".").map { it.trim() }.filter { it.isNotBlank() }
-
                 Text(
                     buildAnnotatedString {
                         ingredientesList.forEach { ingrediente ->
-                            append("•") // Agregar viñeta
-                            append("  ") // Espaciado entre viñeta y texto
+                            append("•  ")
                             append(ingrediente)
-                            append(".\n") // Salto de línea para cada ingrediente
+                            append(".\n")
                         }
                     },
                     color = Color(0xFFC07771),
@@ -382,27 +317,21 @@ fun RecetaCard(
                 IconButton(
                     onClick = {
                         scope.launch {
-                            if (isFavorite) {
-                                database.favoritoDao().deleteFavorito(receta.idReceta)
-                            } else {
-                                val favorito = Favorito(idReceta = receta.idReceta)
-                                database.favoritoDao().insertFavorito(favorito)
-                            }
-                            isFavorite = !isFavorite
+                            database.favoritoDao().deleteFavorito(receta.idReceta)
+                            onRemoveFavorito(receta.idReceta) // 👈 Llamar la función de actualización
                         }
                     },
-                    modifier = Modifier
-                        .size(40.dp)
-                        .background(Color(0xFFAD5D56), CircleShape)
+                    modifier = Modifier.size(40.dp).background(Color(0xFFAD5D56), CircleShape)
                 ) {
                     Icon(
-                        imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                        imageVector = Icons.Default.Favorite,
                         contentDescription = "Agregar a favoritos",
                         tint = Color.White,
                         modifier = Modifier.size(20.dp)
                     )
                 }
 
+                //Boton de detalles
                 Spacer(modifier = Modifier.width(8.dp))
 
                 // Botón de detalles (tres puntos)
@@ -429,13 +358,4 @@ fun RecetaCard(
     }
 }
 
-@Composable
-fun imagenEmogi(emogi: String): Painter {
-    return when (emogi) {
-        "Feliz" -> painterResource(id = R.drawable.feli)
-        "Triste" -> painterResource(id = R.drawable.tite)
-        "Enojado" -> painterResource(id = R.drawable.enojao)
-        else -> painterResource(id = R.drawable.feli)
-    }
-}
 

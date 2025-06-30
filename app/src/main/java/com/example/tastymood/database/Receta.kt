@@ -7,8 +7,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "recetas")
 data class Receta(
-    @PrimaryKey(autoGenerate = true)
-    val idReceta: Int = 0,
+    @PrimaryKey(autoGenerate = true) val idReceta: Int = 0,
     val nombreReceta: String,
     val ingredientes: String,
     val preparacion: String,
@@ -30,7 +29,6 @@ data class Receta(
     indices = [Index(value = ["idReceta"])]
 )
 data class Favorito(
-    @PrimaryKey(autoGenerate = true)
-    val idFav: Int = 0,
+    @PrimaryKey(autoGenerate = true) val idFav: Int = 0,
     val idReceta: Int
 )

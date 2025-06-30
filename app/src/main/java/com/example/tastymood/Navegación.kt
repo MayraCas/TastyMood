@@ -18,9 +18,19 @@ fun Navegacion(dataStoreManager: DataStoreManager) {
             val diets = backStackEntry.arguments?.getString("diets") ?: "Ninguna"
             val selectIng = backStackEntry.arguments?.getString("selectedIngredients") ?: "Ninguno"
             val excludedIng = backStackEntry.arguments?.getString("excludedIngredients") ?: "Ninguno"
-
             Recetas(navController, mood, diets, selectIng, excludedIng)
         }
-
+        composable(route = "RecetasFavoritas") {
+            RecetasFavoritas(navController)
+        }
+        composable(route = "RecetasDetalle/{idReceta}") { backStackEntry ->
+            val idReceta = backStackEntry.arguments?.getString("idReceta")?.toIntOrNull()
+            if (idReceta != null) {
+                RecetasDetalle(navController, idReceta)
+            }
+        }
+        composable(route = "Configuracion") {
+            ConfigScreen(navController, dataStoreManager)
+        }
     }
 }
